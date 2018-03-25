@@ -108,7 +108,7 @@ def remove_duplicates(thrds_list):
 cnx =  MySQLdb.connect(user='root', password='root123', host='127.0.0.1', database='Apple')
 cur = cnx.cursor()
 
-cur.execute("select ThreadID from posts1 where correct=1 or helpful=1") #limit 10000 
+cur.execute("select ThreadID from posts1 group by ThreadID having count(MessageID)=1 limit 160000")
 ThreadIDs = cur.fetchall()
 ThreadIDList = remove_duplicates(ThreadIDs)
 
@@ -153,10 +153,10 @@ for key in uniq_dict_rows.keys():
           skipdate = cur.fetchone()
           skipdate_timediff = int((skipdate[0] - exact_date).total_seconds()/60) if skipdate is not None else 'None'
             
-          cur.execute("select count(MessageID) from posts1 where newdate>='{0}' and newdate<='{1}' and helpful=1 and Sub_Category='{2}'".format(day_before_exact_date, exact_date, subcateg)) #replace helpful with useful
+          cur.execute("select count(MessageID) from posts1 where newdate>='{0}' and newdate<='{1}' and helpful=1 and Sub_Category='{2}'".format(day_before_exact_date, exact_date, subcateg))
           no_of_helpful_messages_before = cur.fetchone()[0]
 
-          cur.execute("select count(MessageID) from posts1 where newdate>='{0}' and newdate<='{1}' and helpful=1 and Sub_Category='{2}'".format(five_day_before_exact_date, exact_date, subcateg))#replace helpful with useful
+          cur.execute("select count(MessageID) from posts1 where newdate>='{0}' and newdate<='{1}' and helpful=1 and Sub_Category='{2}'".format(five_day_before_exact_date, exact_date, subcateg))
           no_of_helpful_messages_five_day_before = cur.fetchone()[0]
 
           cur.execute("select count(MessageID) from posts1 where newdate>='{0}' and newdate<='{1}' and correct=1 and Sub_Category='{2}'".format(day_before_exact_date, exact_date, subcateg))
@@ -167,7 +167,7 @@ for key in uniq_dict_rows.keys():
           cur.execute("select count(MessageID) from posts1 where ThreadID='{0}'".format(thread_id))
           no_of_posts = cur.fetchone()[0] 
 
-          cur.execute("select count(MessageID) from posts1 where UserID='{0}' and helpful=1 and newdate<='{1}'".format(user_id, exact_date))#replace helpful with useful     
+          cur.execute("select count(MessageID) from posts1 where UserID='{0}' and helpful=1 and newdate<='{1}'".format(user_id, exact_date))     
           CntHelp= cur.fetchone()[0]
 
           cur.execute("select count(MessageID) from posts1 where UserID='{0}' and correct=1 and newdate<='{1}'".format(user_id, exact_date))     
@@ -179,7 +179,7 @@ for key in uniq_dict_rows.keys():
           cur.execute("select count(MessageID) from posts1 where ThreadID='{0}'".format(thread_id))
           CntMsgInThrd=cur.fetchone()[0]
 
-          cur.execute("select min(newdate) from posts1 where ThreadID='{0}' and (helpful=1 or correct=1)".format(thread_id))#add useful=1 with helpful ,correct
+          cur.execute("select min(newdate) from posts1 where ThreadID='{0}' and (helpful=1 or correct=1)".format(thread_id))
           useful_date=cur.fetchone()[0]
           TimeToUseful= int((useful_date - exact_date).total_seconds()/60) if useful_date is not None else 'None'
           
@@ -190,7 +190,7 @@ for key in uniq_dict_rows.keys():
           CntThrd = len(uniq_list_new_ths)
            
           if(CntThrd>1):
-            cur.execute("select sum(helpful), sum(correct) from posts1 where ThreadID in {0}".format(uniq_list_new_ths))#add sum(useful) with helpful, correct
+            cur.execute("select sum(helpful), sum(correct) from posts1 where ThreadID in {0}".format(uniq_list_new_ths))
             sums = cur.fetchone()
             
           else:
